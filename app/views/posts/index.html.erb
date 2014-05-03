@@ -14,6 +14,7 @@
 	}	
 
 	.map-container {
+		position: relative;
 		width: 70%;
 		height: 100%;
 		float: left;
@@ -46,56 +47,150 @@
 	    margin: 0;
 	}
 
+	.friends-container ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.friends-container .friend-container {
+		display: block;
+		margin-bottom: 5px;
+	}
+
+	.friends-container .friend {
+		padding: 10px;
+		border: 1px solid black;
+		border-radius: 4px;
+	}
+
+	#MapDiv {
+
+	}
+
+	#Map {
+		padding: 0;
+      	margin: 0;
+      	height: 100%;
+	}
+	#LocateButton {
+      position: absolute;
+      top: 95px;
+      left: 20px;
+      z-index: 50;
+    }
+
 
 </style>
 
 <div class="search-container">
-	<div id="pointA"></div>
-	<div id="pointB"></div>
+	<div class="search-collection">
+		<div id="pointA"></div>
+		<div id="pointB"></div>	
+		<%# This is auto generated %>
+	</div>
 
-
-<h3>friends</h3>
-<ul>
-<% for user in current_user.friends %>
-<li><%= user.username %></li>
-<% end %>
-</ul>
+	<div class="friends-container">
+		<h3>friends</h3>
+		<ul>
+			<% for user in current_user.friends %>
+				<li>
+					<a class="friend-container" href="#" data-username="<%= user.username %>">
+						<div class="friend">
+							<div><strong><%= user.username %></strong></div>
+							<% if(user.address != nil)  %>
+								<div><span><%= user.address %></span></div>
+							<% end %>
+						</div>
+					</a>
+				</li>
+			<% end %>
+		</ul>
+	</div>
 </div>
 
 <div class="map-container">
-    <div id="mapDiv"></div>
+    <div id="Map">
+	    <div id="LocateButton"></div>
+	</div>
 </div>
 
-
 <script>
-	var map;
-	var pointA;
-	var pointB;
+	var geocoders = [];
+	var searchContainer = $(".search-collection");
 
-  	require(["esri/map", "esri/dijit/Geocoder", "dojo/dom", "dojo/dom-construct", "dojo/query", "dojo/_base/Color","dojo/domReady!"], function(Map, Geocoder, dom) { 
-	    map = new Map("mapDiv", {
+	var map;
+
+  	require([
+  		"dojo/dom",
+		"dojo/_base/array",
+		"esri/Color",
+		"dojo/parser",
+		"dijit/registry",
+
+		"esri/dijit/Geocoder",
+		"esri/dijit/LocateButton",
+
+		"esri/urlUtils",
+		"esri/map",
+		"esri/lang",
+		"esri/graphic",
+		"esri/InfoTemplate",
+		"esri/layers/GraphicsLayer",
+		"esri/renderers/SimpleRenderer",
+
+		"esri/geometry/Point",
+		"esri/tasks/FeatureSet",
+
+		"esri/tasks/ClosestFacilityTask",
+		"esri/tasks/ClosestFacilityParameters",
+
+		"esri/symbols/SimpleMarkerSymbol",
+		"esri/symbols/SimpleLineSymbol",
+
+		"dijit/form/ComboBox",
+		"dijit/layout/BorderContainer",
+		"dijit/layout/ContentPane"], function(
+			dom, array, Color, parser, registry,
+			Geocoder, LocateButton,
+			urlUtils, Map, esriLang, Graphic, InfoTemplate, GraphicsLayer, SimpleRenderer, 
+      		Point, FeatureSet, 
+      		ClosestFacilityTask, ClosestFacilityParameters, 
+      		SimpleMarkerSymbol, SimpleLineSymbol) { 
+	    map = new Map("Map", {
 	      center: [-56.049, 38.485],
 	      zoom: 4,
 	      basemap: "streets"
 	    });
 
-	    pointA = new Geocoder({
-	  		autoComplete: true,
-	  		map: map,
-	  		arcgisGeocoder: {
-	    		placeholder: "Your Address"
-	  		}
-		}, dom.byId("pointA"));
+		var geoLocate = new LocateButton({
+        	map: map
+      	}, "LocateButton");
+      	geoLocate.startup();
 
-		pointB = new Geocoder({
-	  		autoComplete: true,
-	  		map: map,
-	  		arcgisGeocoder: {
-	    		placeholder: "Friend's Address"
-	  		}
-		}, dom.byId("pointB"));
-});
-     
+	    addGeocoder("pointA", "Your Address");
+	    addGeocoder("pointB", "Friends Address");
+
+		$("a.friend-container").each(function() {
+			$(this).unbind("click").click(function() {
+				var username = $(this).attr("data-username");
+				searchContainer.append('<div id="point' + username + '"></div>');
+				addGeocoder("point" + username, username);
+				return false;
+			});
+		});
+
+		function addGeocoder(id, detail) {
+			var geocoder = new Geocoder({
+				autoComplete: true,
+				map: map,
+	  			arcgisGeocoder: {
+	    			placeholder: detail
+	  			}
+			}, dom.byId(id));
+			geocoders.push(geocoder)
+		}
+	});     
 
 </script>
 
