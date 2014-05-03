@@ -1,1 +1,11 @@
 hi!
+
+<div>
+  <% for user in @users %>
+  <div>
+  <%= user.username %>
+  <%= link_to 'Add Friend', friendships_path(:friend_id => user), :method => :post %>
+  <% end %>
+</div>
+
+</div>
