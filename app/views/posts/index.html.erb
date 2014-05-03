@@ -34,11 +34,20 @@
 <div class="search-container">
 	<div id="pointA"></div>
 	<div id="pointB"></div>
+
+
+<h3>friends</h3>
+<ul>
+<% for user in current_user.friends %>
+<li><%= user.username %></li>
+<% end %>
+</ul>
 </div>
 
 <div class="map-container">
     <div id="mapDiv"></div>
 </div>
+
 
 <script>
 	var map;
