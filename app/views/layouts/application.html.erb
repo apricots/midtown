@@ -9,9 +9,23 @@
     <meta name="description" content="Meet halfway">
     <meta name="author" content="">
 
+    <%# CSS %>
+    <link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
     <%= stylesheet_link_tag "application", :media => "all" %>
+
+    <%# JS %>
+    <script type="text/javascript" src="http://js.arcgis.com/3.9/"></script>
     <%= javascript_include_tag "application" %>
     <%= csrf_meta_tags %>
+
+  <style>
+    html, body, #main, #mapDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+  </style>
+
 
     <%= yield(:head) %>
   </head>
@@ -30,16 +44,8 @@
 
     <%# This is where the component goes to %>
     <div id="main" role="main">
-      <div class="container-fluid">
-         <div class="row">
-          <div class="span12">
-            <%= render 'layouts/messages' %>
-            <%= yield %>
-          </div>
-        </div>
-      </div>
+      <%= render 'layouts/messages' %>
+      <%= yield %>
     </div>
-
-
   </body>
 </html>
