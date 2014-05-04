@@ -100,7 +100,6 @@
 	    map = new Map("Map", {
 	      center: [-56.049, 38.485],
 	      zoom: 4,
-	      maxZoom:9,
 	      minZoom:2,
 	      basemap: "streets",
 	    });
@@ -180,8 +179,6 @@
     		var searchCollection = $(".search-collection");
     		var childrens = searchCollection.find(".simpleGeocoder");
 
-    		console.log(childrens);
-
 			var id = "point" + childrens.length;
 			var html = '<div class="simpleGeocoder" id="' + id + '"></div>'
 
@@ -229,6 +226,7 @@
 			geocoder.on("select", function(e) {
 				var x = e.result.feature.geometry.x;
 				var y = e.result.feature.geometry.y;
+				addressGraphicsLayer.remove(graphic);
 				graphic = new Graphic(new Point(x, y, map.spatialReference))
 				addressGraphicsLayer.add(graphic);
 				calculateMidpoint();
@@ -247,11 +245,13 @@
 			var totalX = 0;
 			var totalY = 0;
 			var totalCounter = 0;
+
 			for(var i = 0; i < addressGraphicsLayer.graphics.length; i++) {
 				var currentGeocoder = addressGraphicsLayer.graphics[i];
 				totalX += currentGeocoder.geometry.x;
 				totalY += currentGeocoder.geometry.y;
 				totalCounter++;
+
 			}
 
 			if(totalCounter > 1 && totalX != null && totalY != null) {
