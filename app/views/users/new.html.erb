@@ -108,8 +108,8 @@
           selectedPoint = null;
         }
 
-        latitude = e.result.feature.geometry.x / 100000;
-        longitude = e.result.feature.geometry.y / 100000;
+        latitude = e.result.feature.geometry.x;
+        longitude = e.result.feature.geometry.y;
         console.log(latitude, longitude);
 
         selectedPoint = new Graphic(e.result.feature.geometry)
