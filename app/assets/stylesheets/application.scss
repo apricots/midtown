@@ -42,3 +42,93 @@ div.comment_votes {
   padding: 10px;
 }
 
+
+
+
+
+
+
+/*
+  Midtown Application
+*/
+
+  html, body #main{ 
+    height: 100%;
+  }
+
+  .search-container {
+    width: 30%;
+    height: 100%;
+    float: left;
+    padding: 0 20px;
+    -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+  } 
+
+  .map-container {
+    position: relative;
+    width: 70%;
+    height: 100%;
+    float: left;
+  }
+
+  .simpleGeocoder .esriGeocoderContainer {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .simpleGeocoder .esriGeocoder {
+    position: relative;
+  }
+
+  .simpleGeocoder .esriGeocoder .esriGeocoderSearch {
+    position: absolute;
+  }
+
+  .simpleGeocoder .esriGeocoderHasValue .esriGeocoderReset {
+    position: absolute;
+    right: 0;
+  }
+
+  .simpleGeocoder .esriGeocoderContainer input[type=text] {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      padding: 16px 6px 16px 32px;
+      margin: 0;
+  }
+
+  .friends-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .friends-container .friend-container {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .friends-container .friend {
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 4px;
+  }
+
+  #MapDiv {
+
+  }
+
+  #Map {
+    padding: 0;
+        margin: 0;
+        height: 100%;
+  }
+  #LocateButton {
+      position: absolute;
+      top: 95px;
+      left: 20px;
+      z-index: 50;
+    } 

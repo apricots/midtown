@@ -1,92 +1,9 @@
-<style>
-	html, body #main{
-		height: 100%;
-	}
-
-	.search-container {
-		width: 30%;
-		height: 100%;
-		float: left;
-		padding: 0 20px;
-		-webkit-box-sizing: border-box;
-	    -moz-box-sizing: border-box;
-	    box-sizing: border-box;
-	}	
-
-	.map-container {
-		position: relative;
-		width: 70%;
-		height: 100%;
-		float: left;
-	}
-
-	.simpleGeocoder .esriGeocoderContainer {
-		width: 100%;
-		margin-bottom: 10px;
-	}
-
-	.simpleGeocoder .esriGeocoder {
-		position: relative;
-	}
-
-	.simpleGeocoder .esriGeocoder .esriGeocoderSearch {
-		position: absolute;
-	}
-
-	.simpleGeocoder .esriGeocoderHasValue .esriGeocoderReset {
-		position: absolute;
-		right: 0;
-	}
-
-	.simpleGeocoder .esriGeocoderContainer input[type=text] {
-		width: 100%;
-		-webkit-box-sizing: border-box;
-	    -moz-box-sizing: border-box;
-	    box-sizing: border-box;
-	    padding: 16px 6px 16px 32px;
-	    margin: 0;
-	}
-
-	.friends-container ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.friends-container .friend-container {
-		display: block;
-		margin-bottom: 5px;
-	}
-
-	.friends-container .friend {
-		padding: 10px;
-		border: 1px solid black;
-		border-radius: 4px;
-	}
-
-	#MapDiv {
-
-	}
-
-	#Map {
-		padding: 0;
-      	margin: 0;
-      	height: 100%;
-	}
-	#LocateButton {
-      position: absolute;
-      top: 95px;
-      left: 20px;
-      z-index: 50;
-    }
-
-
-</style>
-
 <div class="search-container">
 	<div class="search-collection">
 		<div id="pointA"></div>
 		<div id="pointB"></div>	
+		<div id="pointC"></div>
+		<div id="pointD"></div>	
 		<%# This is auto generated %>
 	</div>
 
@@ -108,6 +25,8 @@
 		</ul>
 	</div>
 
+	<div id="directions"></div>
+
 	<div id="directionsDiv"></div>
 </div>
 
@@ -118,7 +37,7 @@
 </div>
 
 <script>
-	var API_TOKEN = "AZJFyNLR11jjhrLfvYAkQ8PIVBWdud2Oz50aHe2gGpmM3Bl8JXxe6KTeSjqjtapLtwzyBn4yJ45QDhizrRcTEMNbB0Ob4Z7TcxruqOGuHJLyVh-Bzqgldyisnxy-NkAilunkzRCVbUfhgqhFKqamhg.."
+	var API_TOKEN = "g-w4YQfNO1dWRhUttjbtey-UEyVWf82XBS6H2LbA4MXrQ5EQAaGdAF6Nig84hr0dffVnDEwgcE-obRRtU-DwioHYk1atWYaAmoINc4VKdyVy6rImdrTBlcLoTwsZqEzpaAW6OH1kxwRDyWryG3LRbg.."
 
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
@@ -165,7 +84,12 @@
 		var incidentsGraphicsLayer, 
 			routeGraphicLayer, 
 			facilitiesGraphicsLayer,
-			closestFacilityTask;
+			addressGraphicsLayer,
+			midpointGraphicsLayer;
+
+		var closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World?token=" + API_TOKEN);
+
+					var dragging = false;
 
 		//wtf does this even do? i don't even know
       	parser.parse();
@@ -174,8 +98,11 @@
 	    map = new Map("Map", {
 	      center: [-56.049, 38.485],
 	      zoom: 4,
-	      basemap: "streets"
+	      maxZoom:6,
+	      minZoom:2,
+	      basemap: "streets",
 	    });
+
 		map.on("click", mapClickHandler);
 
 	    //Create the geo location button on the map
@@ -186,7 +113,7 @@
 
 		params = new ClosestFacilityParameters();
 		params.impedenceAttribute= "Miles";      
-		params.defaultCutoff= 1000.0;      
+		params.defaultCutoff= 100000.0;      
 		params.returnIncidents=false;
 		params.returnRoutes=true;
 		params.returnDirections=true;
@@ -194,6 +121,7 @@
       
 		map.on("load", function(evtObj) {
 			var map = evtObj.target;
+			map.enableScrollWheelZoom();
 
 			//Origin
 			incidentsGraphicsLayer = new GraphicsLayer();
@@ -216,22 +144,31 @@
 	        facilitiesGraphicsLayer.setRenderer(facilityRenderer);
 	        map.addLayer(facilitiesGraphicsLayer);
 
+	        //Address
+	        addressGraphicsLayer = new GraphicsLayer();
+	        var addressPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
+			var addressRenderer = new SimpleRenderer(addressPointSymbol);
+			addressGraphicsLayer.setRenderer(addressRenderer);
+			map.addLayer(addressGraphicsLayer);
+
+			//Midpoint
+			midpointGraphicsLayer = new GraphicsLayer();
+	        var midpointPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([33,95,35]), 2), new Color([33,200,35]));
+			var midpointRenderer = new SimpleRenderer(midpointPointSymbol);
+			midpointGraphicsLayer.setRenderer(midpointRenderer);
+			map.addLayer(midpointGraphicsLayer);
+
+
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625960,8549921,map.spatialReference)));
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626184,4549247,map.spatialReference)));
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626477,4549415,map.spatialReference)));
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625385,4549659,map.spatialReference))); 
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624374,4548254,map.spatialReference))); 
 	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624891,4548565,map.spatialReference))); 
-	   
-	        var facilities = new FeatureSet();
-	        facilities.features = facilitiesGraphicsLayer.graphics;
-	        
-	        params.facilities = facilities;
+
 	        params.outSpatialReference = map.spatialReference;
        
   		});
-      
-      	closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World?token=" + API_TOKEN);
 
 		//clear graphics	
       	function clearGraphics() {
@@ -241,23 +178,101 @@
 	        incidentsGraphicsLayer.clear();    
 		}
 
-
-
       	function mapClickHandler(evt) {
-        	clearGraphics();
+			updateMidpoint(evt.mapPoint.x, evt.mapPoint.y);
+      	}
 
-        	var inPoint = new Point(evt.mapPoint.x, evt.mapPoint.y, map.spatialReference);
-        	var location = new Graphic(inPoint);
+  		//Add Geocoder dynamically
+	    var pointA = addGeocoder("pointA", "Your Address", "New York");
+	    var pointB = addGeocoder("pointB", "Friends Address", "San Fransisco");
+	    var pointB = addGeocoder("pointC", "Friends Address", "North Dakota");
+	    var pointB = addGeocoder("pointD", "Friends Address", "Florida");
 
-        	incidentsGraphicsLayer.add(location);
-        
-        	var features = [];
-    		features.push(location);
+		$("a.friend-container").each(function() {
+			$(this).unbind("click").click(function() {
+				var username = $(this).attr("data-username");
+				var address = $(this).attr("data-address");
+				//Exist
+				if($("#point" + username).length) {
+					searchContainer.remove("#point" + username);
+				}else {
+					searchContainer.append('<div id="point' + username + '"></div>');
+					var geocoder = addGeocoder("point" + username, username, address);
+					geocoder.blur();
+				}
+				return false;
+			});
+		});
+
+		function addGeocoder(id, detail, address) {
+			var graphic;
+
+			var geocoder = new Geocoder({
+				autoComplete: true,
+				map: map,
+				zoomScale: 2,
+	  			arcgisGeocoder: {
+	    			placeholder: detail
+	  			},
+	  			value: address != null ? address : ""
+			}, dom.byId(id));
+
+			geocoder.on("select", function(e) {
+				var x = e.result.feature.geometry.x;
+				var y = e.result.feature.geometry.y;
+				graphic = new Graphic(new Point(x, y, map.spatialReference))
+
+				addressGraphicsLayer.add(graphic);
+				calculateMidpoint();
+			});
+
+			geocoder.on("clear", function() {
+				addressGraphicsLayer.remove(graphic);
+				calculateMidpoint();
+			});
+
+			geocoders.push(geocoder)
+			return geocoder;
+		}
+
+
+		function calculateMidpoint() {
+			var totalX = 0;
+			var totalY = 0;
+			var totalCounter = 0;
+
+			for(var i = 0; i < geocoders.length; i++) {
+				var currentGeocoder = geocoders[i];
+				if(currentGeocoder.results.length > 0) {
+					totalX += currentGeocoder.results[0].feature.geometry.x;
+					totalY += currentGeocoder.results[0].feature.geometry.y;
+					totalCounter++;
+				}
+			}
+
+			if(totalCounter > 1 && totalX != null && totalY != null) {
+				updateMidpoint(totalX/totalCounter, totalY/totalCounter);
+			}
+		}
+
+		function updateMidpoint(x, y) {
+			var midpointPointGraphic = new Graphic(new Point(x, y, map.spatialReference));
+			midpointGraphicsLayer.clear();
+			midpointGraphicsLayer.add(midpointPointGraphic);
+			generateMidpointReverseDirections(midpointPointGraphic);
+		}
+
+		function generateMidpointReverseDirections(midpointPoint) {
+			var facilities = new FeatureSet();
+	        facilities.features = midpointGraphicsLayer.graphics;
+	        params.facilities = facilities;
+
         	var incidents = new FeatureSet();
-        	incidents.features = features;
+    		incidents.features = addressGraphicsLayer.graphics
         	params.incidents = incidents;
-        
-        	map.graphics.enableMouseEvents();
+
+        	//Mouse handler
+			map.graphics.enableMouseEvents();
        
         	routeGraphicLayer.on("mouse-over", function(evt) {
           	//clear existing directions and highlight symbol
@@ -271,72 +286,32 @@
           		dom.byId("directionsDiv").innerHTML = esriLang.substitute(evt.graphic.attributes,"${*}");
         	});	
 
-        	//solve 
+
         	closestFacilityTask.solve(params, function(solveResult) {
+				clearGraphics();
+
           		var directions = solveResult.directions;
-          		array.forEach(solveResult.routes, function(route, index){
-            	//build an array of route info
-            	var attr = array.map(solveResult.directions[index].features, function(feature) {
-              		return feature.attributes.text;
-            	});
-            	var infoTemplate = new InfoTemplate("Attributes", "${*}");
-            
-            	route.setInfoTemplate(infoTemplate);
-            	route.setAttributes(attr);
-            
-            	routeGraphicLayer.add(route);
-            	dom.byId("directionsDiv").innerHTML = "Hover over the route to view directions";
+
+          		array.forEach(solveResult.routes, function(route, index) {
+
+
+            		//build an array of route info
+	            	var attr = array.map(solveResult.directions[index].features, function(feature) {
+	              		return feature.attributes.text;
+	            	});
+
+	            	var infoTemplate = new InfoTemplate("Attributes", "${*}");
+	            
+	            	route.setInfoTemplate(infoTemplate);
+	            	route.setAttributes(attr);
+	            
+	            	routeGraphicLayer.add(route);
+	            	dom.byId("directionsDiv").innerHTML = "Hover over the route to view directions";
+	          	});
           	});
-          
-          	//display any messages
-          	if(solveResult.messages.length > 0){
-            	dom.byId("directionsDiv").innerHTML = "<b>Error:</b> " + solveResult.messages[0];
-          	}      
-      	});
-    }
-
-
-
-  		//Add Geocoder dynamically
-	    addGeocoder("pointA", "Your Address");
-	    addGeocoder("pointB", "Friends Address");
-
-		$("a.friend-container").each(function() {
-			$(this).unbind("click").click(function() {
-				var username = $(this).attr("data-username");
-				var address = $(this).attr("data-address");
-				searchContainer.append('<div id="point' + username + '"></div>');
-				var geocoder = addGeocoder("point" + username, username, address);
-				return false;
-			});
-		});
-
-		function addGeocoder(id, detail, address) {
-			var graphic;
-
-			var geocoder = new Geocoder({
-				autoComplete: true,
-				map: map,
-	  			arcgisGeocoder: {
-	    			placeholder: detail
-	  			},
-	  			value: address != null ? address : ""
-			}, dom.byId(id));
-
-			geocoder.on("select", function(e) {
-				var x = e.result.feature.geometry.x;
-				var y = e.result.feature.geometry.y;
-				graphic = new Graphic(new Point(x, y, map.spatialReference))
-				facilitiesGraphicsLayer.add(graphic);
-			});
-
-			geocoder.on("clear", function() {
-				facilitiesGraphicsLayer.remove(graphic);
-			});
-
-			geocoders.push(geocoder)
-			return geocoder;
 		}
+
+
 	});     
 
 </script>
