@@ -1,21 +1,17 @@
-<h2>ALL USERS</h2>
 
-<div>
-  <% for user in @users %>
-  <div>
-  <%= user.username %>
-  <%= link_to '<i class="icon-plus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
-  <%= link_to "remove", friendships_path(:friend_id => user), :method => :delete %>
-  <% end %>
+
+<div class='add-new-friends-container'>
+  <h4>Add New Friends</h4>
+  <div class="add-new-friends">
+    <% for user in @users %>
+    <div>
+    <%= user.username %>
+
+    <%= link_to '<i class="icon-plus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
+    <!--Minus button doesn't work! -->
+    <%= link_to '<i class="icon-minus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
+    <% end %>
+  </div>
 </div>
 
 </div>
-
-<hr>
-Friends
-
-<% for friend in current_user.friendships %>
-<div>
-  <%= friend.friend.username %>
-</div>
-<% end %>

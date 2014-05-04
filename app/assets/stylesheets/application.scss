@@ -117,18 +117,34 @@ div.comment_votes {
     border-radius: 4px;
   }
 
-  #MapDiv {
+  #MapDiv{
 
   }
 
   #Map {
     padding: 0;
-        margin: 0;
-        height: 100%;
+    margin: 0;
+    height: 100%;
   }
+
   #LocateButton {
-      position: absolute;
-      top: 95px;
-      left: 20px;
-      z-index: 50;
-    } 
+    position: absolute;
+    top: 95px;
+    left: 20px;
+    z-index: 50;
+  } 
+
+  .add-new-friends-container {
+    padding: 10px;
+
+    .add-new-friends {
+      border: 1px solid black;
+      border-radius: 4px;
+      width: 20%;
+      padding: 10px;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+
