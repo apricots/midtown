@@ -111,6 +111,10 @@ div.comment_votes {
     margin-bottom: 5px;
   }
 
+  .friends-container .friend-container.active{
+    background-color: yellow;
+  }
+
   .friends-container .friend {
     padding: 10px;
     border: 1px solid black;

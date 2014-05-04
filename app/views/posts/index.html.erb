@@ -6,11 +6,6 @@
 		<div id="pointB"></div>	
 		<div id="pointC"></div>
 		<div id="pointD"></div>	
-		<%# This is auto generated %>
-    	<% @yelp_data.each_with_index do |restaurant,index| %>
-      		<p><%=@yelp_data['businesses'][index]['name']%></p>
-      		<p><%=@yelp_data['businesses'][index]['location']['display_address']%><p/>
-    	<% end %>
 	</div>
 
 
@@ -19,7 +14,7 @@
 		<ul>
 			<% for user in current_user.friends %>
 				<li>
-					<a class="friend-container" href="#" data-username="<%= user.username %>" data-address="<%= user.address %>">
+					<a class="friend-container" href="#" data-username="<%= user.username %>" data-address="<%= user.address %>" data-longitude="<%= user.longitude != nil ? user.longitude : 40 %>" data-latitude="<%= user.latitude != nil ? user.latitude : 40 %>">
 						<div class="friend">
 							<div><strong><%= user.username %></strong></div>
 							<% if(user.address != nil)  %>
@@ -34,7 +29,7 @@
 
 	<div id="directions"></div>
 
-	<div id="directionsDiv"></div>
+	<div id="directionContainer"></div>
 </div>
 
 <div class="map-container">
@@ -96,8 +91,7 @@
 
 		var closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World?token=" + API_TOKEN);
 
-					var dragging = false;
-
+		var directionContainer = dom.byId("directionContainer");
 		//wtf does this even do? i don't even know
       	parser.parse();
 
@@ -179,10 +173,10 @@
 
 		//clear graphics	
       	function clearGraphics() {
-	        dom.byId("directionsDiv").innerHTML= "";
+	        directionContainer.innerHTML= "";
 	        map.graphics.clear();
 	        routeGraphicLayer.clear();
-	        incidentsGraphicsLayer.clear();    
+	        incidentsGraphicsLayer.clear();
 		}
 
       	function mapClickHandler(evt) {
@@ -196,17 +190,23 @@
 	    var pointB = addGeocoder("pointD", "Friends Address", "Florida");
 
 		$("a.friend-container").each(function() {
+			var graphic = null;
 			$(this).unbind("click").click(function() {
-				var username = $(this).attr("data-username");
-				var address = $(this).attr("data-address");
-				//Exist
-				if($("#point" + username).length) {
-					searchContainer.remove("#point" + username);
+				if(graphic == null) {
+					var username = $(this).attr("data-username");
+					var address = $(this).attr("data-address");
+					var x = $(this).attr("data-longitude");
+					var y = $(this).attr("data-latitude");
+					graphic = new Graphic(new Point(x, y, map.spatialReference))	
+					addressGraphicsLayer.add(graphic);
+					$(this).addClass("active");
 				}else {
-					searchContainer.append('<div id="point' + username + '"></div>');
-					var geocoder = addGeocoder("point" + username, username, address);
-					geocoder.blur();
+					addressGraphicsLayer.remove(graphic);
+					graphic = null;
+					$(this).removeClass("active");
 				}
+
+				calculateMidpoint();
 				return false;
 			});
 		});
@@ -228,7 +228,6 @@
 				var x = e.result.feature.geometry.x;
 				var y = e.result.feature.geometry.y;
 				graphic = new Graphic(new Point(x, y, map.spatialReference))
-
 				addressGraphicsLayer.add(graphic);
 				calculateMidpoint();
 			});
@@ -238,7 +237,6 @@
 				calculateMidpoint();
 			});
 
-			geocoders.push(geocoder)
 			return geocoder;
 		}
 
@@ -247,14 +245,11 @@
 			var totalX = 0;
 			var totalY = 0;
 			var totalCounter = 0;
-
-			for(var i = 0; i < geocoders.length; i++) {
-				var currentGeocoder = geocoders[i];
-				if(currentGeocoder.results.length > 0) {
-					totalX += currentGeocoder.results[0].feature.geometry.x;
-					totalY += currentGeocoder.results[0].feature.geometry.y;
-					totalCounter++;
-				}
+			for(var i = 0; i < addressGraphicsLayer.graphics.length; i++) {
+				var currentGeocoder = addressGraphicsLayer.graphics[i];
+				totalX += currentGeocoder.geometry.x;
+				totalY += currentGeocoder.geometry.y;
+				totalCounter++;
 			}
 
 			if(totalCounter > 1 && totalX != null && totalY != null) {
@@ -284,13 +279,13 @@
         	routeGraphicLayer.on("mouse-over", function(evt) {
           	//clear existing directions and highlight symbol
           		map.graphics.clear();
-          		dom.byId("directionsDiv").innerHTML= "Hover over the route to view directions";
+          		directionContainer.innerHTML= "Hover over the route to view directions";
           
           		var highlightSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0,255,255],0.25), 4.5);
           		var highlightGraphic = new Graphic(evt.graphic.geometry,highlightSymbol);
           
           		map.graphics.add(highlightGraphic);
-          		dom.byId("directionsDiv").innerHTML = esriLang.substitute(evt.graphic.attributes,"${*}");
+          		directionContainer.innerHTML = esriLang.substitute(evt.graphic.attributes,"${*}");
         	});	
 
 
@@ -313,8 +308,11 @@
 	            	route.setAttributes(attr);
 	            
 	            	routeGraphicLayer.add(route);
-	            	dom.byId("directionsDiv").innerHTML = "Hover over the route to view directions";
+	            	directionContainer.innerHTML = "Hover over the route to view directions";
 	          	});
+          	}, function(error) {
+				clearGraphics();
+          		directionContainer.innerHTML = error.message;
           	});
 		}
 
