@@ -9,7 +9,7 @@
 
     <%= link_to '<i class="icon-plus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
     <!--Minus button doesn't work! -->
-    <%= link_to '<i class="icon-minus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
+    <%= link_to '<i class="icon-minus"></i>'.html_safe, friendships_path, :method => :delete %> 
     <% end %>
   </div>
 </div>
