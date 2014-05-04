@@ -67,7 +67,6 @@ div.comment_votes {
   } 
 
   .map-container {
-    position: relative;
     width: 70%;
     height: 100%;
     float: left;
@@ -129,6 +128,7 @@ div.comment_votes {
     padding: 0;
     margin: 0;
     height: 100%;
+    position: relative;
   }
 
   #LocateButton {

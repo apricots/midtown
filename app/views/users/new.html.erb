@@ -1,22 +1,24 @@
-<div class = 'well'>
-  <%= form_for @user do |f| %>
-  <div class = 'control-group'>
-    <%= f.label :username %>
-    <%= f.text_field :username %>
-  </div>  
-  <div class = 'control-group'>
-    <%= f.label :address %>
-    <%= f.text_field :address %>
-  </div>
-  <div>
-    <input id="user_longitude" name="user[longitude]" type="hidden">
-    <input id="user_latitude" name="user[latitude]" type="hidden">
-  </div>
+<div class="search-container">
+    <div class = 'well'>
+      <%= form_for @user do |f| %>
+      <div class = 'control-group'>
+        <%= f.label :username %>
+        <%= f.text_field :username %>
+      </div>  
+      <div class = 'control-group'>
+        <%= f.label :address %>
+        <%= f.text_field :address %>
+      </div>
+      <div>
+        <input id="user_longitude" name="user[longitude]" type="hidden">
+        <input id="user_latitude" name="user[latitude]" type="hidden">
+      </div>
 
 
-  <%= f.submit class: 'btn btn-custom' %>
-  <% end %>
-</div>
+      <%= f.submit class: 'btn btn-custom' %>
+      <% end %>
+    </div>
+</div
 
 
 <div class="map-container">
@@ -27,11 +29,6 @@
 
 
 <script>
-  var API_TOKEN = "AZJFyNLR11jjhrLfvYAkQ8PIVBWdud2Oz50aHe2gGpmM3Bl8JXxe6KTeSjqjtapLtwzyBn4yJ45QDhizrRcTEMNbB0Ob4Z7TcxruqOGuHJLyVh-Bzqgldyisnxy-NkAilunkzRCVbUfhgqhFKqamhg.."
-
-  var geocoders = [];
-  var searchContainer = $(".search-collection");
-
   var map;
 
     require([
@@ -84,20 +81,18 @@
       });
       
       //clear graphics  
-        function clearGraphics() {
-          map.graphics.clear();
-    }
+      function clearGraphics() {
+        map.graphics.clear();
+      }
 
 
 
-      function mapClickHandler(evt) {
-          clearGraphics();
+      function mapClickHandler(e) {
+          clearGraphics
 
-          var inPoint = new Point(evt.mapPoint.x, evt.mapPoint.y, map.spatialReference);
-          var location = new Graphic(inPoint);
-
-          map.graphics.enableMouseEvents();
-    }
+          var clickedPoint = new Point(e.mapPoint.x, e.mapPoint.y, map.spatialReference);
+          var location = new Graphic(clickedPoint);
+      }
   });     
 
 </script>
