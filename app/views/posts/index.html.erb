@@ -115,22 +115,7 @@
 		</ul>
 	</div>
 
-	<div id="directions" 
-         data-dojo-type="dijit/layout/ContentPane" 
-         data-dojo-props="region:'bottom'" class="panel" 
-         style="height:250px;">
-
-      <b>Click the map to find routes for the
-      <select id="numLocations" name="numLocations" data-dojo-type="dijit/form/ComboBox" value="1" style="width:60px;">
-          <option selected="selected">1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-      </select> closest facilities to the input point.</b> 
-      <div id="directionsDiv"></div>
-
-    </div>
+	<div id="directionsDiv"></div>
 </div>
 
 <div class="map-container">
@@ -140,6 +125,8 @@
 </div>
 
 <script>
+	var API_TOKEN = "AZJFyNLR11jjhrLfvYAkQ8PIVBWdud2Oz50aHe2gGpmM3Bl8JXxe6KTeSjqjtapLtwzyBn4yJ45QDhizrRcTEMNbB0Ob4Z7TcxruqOGuHJLyVh-Bzqgldyisnxy-NkAilunkzRCVbUfhgqhFKqamhg.."
+
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
 
@@ -204,12 +191,6 @@
       	}, "LocateButton");
       	geoLocate.startup();
 
-		urlUtils.addProxyRule({
-          urlPrefix: "route.arcgis.com",
-          proxyUrl: "http://adamkchew.maps.arcgis.com"
-        });
-        
-
 		params = new ClosestFacilityParameters();
 		params.impedenceAttribute= "Miles";      
 		params.defaultCutoff= 1000.0;      
@@ -257,7 +238,7 @@
        
   		});
       
-      	closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World");
+      	closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World?token=" + API_TOKEN);
 
 		//clear graphics	
       	function clearGraphics() {
