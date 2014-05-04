@@ -41,7 +41,7 @@
 </div>
 
 <script>
-	var API_TOKEN = "AXziRO-83U1tU2P7j7glOnF5br4BK-NQMIQ4psyh44TR9ksJAkvqC1iyesMoOHuOF9mucCYQGXiW5MicZwL-Kq8lwNCWhpfBEdyp2N074qQuq329E98XLAqBZxckCf1EYAecR5yHsNzQkPDHXzgAVg.."
+	var API_TOKEN = "sKaa7atR-IiNVl8cE-c__IB85iPmNh98Qjm0ZQVAvp25apfho0O_BJBCQx41EsnEw1tC5f0aWphgc7ZvpLMs52_9ofAZbK2u6rW7XnhGPW318AfKX3U_XNpRoe97KSWdTojn6iMFWeSa3BUYBFhgrw.."
 
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
@@ -100,7 +100,7 @@
 	    map = new Map("Map", {
 	      center: [-56.049, 38.485],
 	      zoom: 4,
-	      maxZoom:8,
+	      maxZoom:9,
 	      minZoom:2,
 	      basemap: "streets",
 	    });
@@ -148,7 +148,7 @@
 
 			//Midpoint
 			midpointGraphicsLayer = new GraphicsLayer();
-	        var midpointPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([33,95,35]), 2), new Color([33,200,35]));
+	        var midpointPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 40, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([33,95,35]), 2), new Color([33,200,35, ,0.60]));
 			var midpointRenderer = new SimpleRenderer(midpointPointSymbol);
 			midpointGraphicsLayer.setRenderer(midpointRenderer);
 			map.addLayer(midpointGraphicsLayer);
@@ -290,7 +290,6 @@
           		directionContainer.innerHTML = esriLang.substitute(evt.graphic.attributes,"${*}");
         	});	
 
-
         	generateYelpResults();
 
         	closestFacilityTask.solve(params, function(solveResult) {
@@ -346,11 +345,7 @@
 
 					yelpContainer.append(html);
 				}
-
-				console.log(data);
 			});
-
-
 
 		}
 
