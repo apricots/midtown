@@ -1,36 +1,69 @@
-<div class="search-container">
-  
-<h3>search</h3>
-	<div class="search-collection">
-		<div id="pointA"></div>
-		<div id="pointB"></div>	
-		<div id="pointC"></div>
-		<div id="pointD"></div>	
-	</div>
+<style>
+	.yelp-results {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		margin-bottom: 10px;
+	}
 
-<% if logged_in? %>
-	<div class="friends-container">
-		<h3>friends</h3>
-		<ul>
-			<% for user in current_user.friends %>
-				<li>
-					<a class="friend-container" href="#" data-username="<%= user.username %>" data-address="<%= user.address %>" data-longitude="<%= user.longitude != nil ? user.longitude : 40 %>" data-latitude="<%= user.latitude != nil ? user.latitude : 40 %>">
-						<div class="friend">
-							<div><strong><%= user.username %></strong></div>
-							<% if(user.address != nil)  %>
-								<div><span><%= user.address %></span></div>
-							<% end %>
-						</div>
-					</a>
-				</li>
-			<% end %>
-		</ul>
+	.image-container {
+		width: 10%;
+		float: left;
+	}
+
+	.metadata-container {
+		width: 90%;
+		float: left;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		padding: 0 10px;
+	}
+
+	.yelp-results a {
+		display: block;
+		padding: 5px;
+	}
+
+	.yelp-results a:hover {
+		background: yellow;
+	}
+
+</style>
+
+
+
+
+<div class="search-container">
+	<h3>search</h3>
+	<div class="search-collection">
+		<div class="simpleGeocoder" id="pointA"></div>
 	</div>
+	<a id="addMoreSearch" href="#">Add More</a>
+
+	<% if logged_in? %>
+		<div class="friends-container">
+			<h3>friends</h3>
+			<ul>
+				<% for user in current_user.friends %>
+					<li>
+						<a class="friend-container" href="#" data-username="<%= user.username %>" data-address="<%= user.address %>" data-longitude="<%= user.longitude != nil ? user.longitude : 40 %>" data-latitude="<%= user.latitude != nil ? user.latitude : 40 %>">
+							<div class="friend">
+								<div><strong><%= user.username %></strong></div>
+								<% if(user.address != nil)  %>
+									<div><span><%= user.address %></span></div>
+								<% end %>
+							</div>
+						</a>
+					</li>
+				<% end %>
+			</ul>
+		</div>
 	<% end %>
 
-	<div id="directions"></div>
-
+	<div id="yelpContainer"></div>
 	<div id="directionContainer"></div>
+
 </div>
 
 <div class="map-container">
@@ -86,7 +119,6 @@
 
 		var incidentsGraphicsLayer, 
 			routeGraphicLayer, 
-			facilitiesGraphicsLayer,
 			addressGraphicsLayer,
 			midpointGraphicsLayer;
 
@@ -139,13 +171,6 @@
 	        routeGraphicLayer.setRenderer(routeRenderer);
 	        map.addLayer(routeGraphicLayer);
 
-			//Targets
-			facilitiesGraphicsLayer = new GraphicsLayer();
-			var facilityPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
-	        var facilityRenderer = new SimpleRenderer(facilityPointSymbol);
-	        facilitiesGraphicsLayer.setRenderer(facilityRenderer);
-	        map.addLayer(facilitiesGraphicsLayer);
-
 	        //Address
 	        addressGraphicsLayer = new GraphicsLayer();
 	        var addressPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
@@ -159,14 +184,6 @@
 			var midpointRenderer = new SimpleRenderer(midpointPointSymbol);
 			midpointGraphicsLayer.setRenderer(midpointRenderer);
 			map.addLayer(midpointGraphicsLayer);
-
-
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625960,8549921,map.spatialReference)));
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626184,4549247,map.spatialReference)));
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626477,4549415,map.spatialReference)));
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625385,4549659,map.spatialReference))); 
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624374,4548254,map.spatialReference))); 
-	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624891,4548565,map.spatialReference))); 
 
 	        params.outSpatialReference = map.spatialReference;
        
@@ -189,6 +206,22 @@
 	    var pointB = addGeocoder("pointB", "Friends Address", "San Fransisco");
 	    var pointB = addGeocoder("pointC", "Friends Address", "North Dakota");
 	    var pointB = addGeocoder("pointD", "Friends Address", "Florida");
+
+
+    	$("#addMoreSearch").unbind("click").click(function() {
+    		var searchCollection = $(".search-collection");
+    		var childrens = searchCollection.find(".simpleGeocoder");
+
+    		console.log(childrens);
+
+			var id = "point" + childrens.length;
+			var html = '<div class="simpleGeocoder" id="' + id + '"></div>'
+
+			searchCollection.append(html);
+			addGeocoder(id, "Another Address");	
+			return false;
+    	});
+
 
 		$("a.friend-container").each(function() {
 			var graphic = null;
@@ -320,9 +353,35 @@
 		}
 
 		function generateYelpResults() {
-			var x = midpointGraphicsLayer.graphics[0].geometry.x;
-			var y = midpointGraphicsLayer.graphics[0].geometry.y;
-			console.log(x, y)
+			var x = midpointGraphicsLayer.graphics[0].geometry.getLatitude();
+			var y = midpointGraphicsLayer.graphics[0].geometry.getLongitude();
+			$.getJSON("/yelp/" + y + "/" + x, function(data) {
+				var yelpContainer = $("#yelpContainer");
+				yelpContainer.empty();
+				for(var i = 0; i < data.businesses.length; i++) {
+					var business = data.businesses[i];
+					var html = '' +
+					'<div class="yelp-results">' +
+						'<a href="' + business.url + '">' +
+							'<div class="image-container">' + 
+								'<img width="100%" height="100%" src="' + business.image_url + '"/>' +
+							'</div>' +
+							'<div class="metadata-container">' +
+								'<div><strong>' + business.name +' (' + business.phone + ') </strong></div>' +
+								'<img src="' + business.rating_img_url + '"/>' +
+							'</div>' +
+							'<div class="clearfix"></div>' +
+						'</a>' + 
+					'</div>';
+
+					yelpContainer.append(html);
+				}
+
+				console.log(data);
+			});
+
+
+
 		}
 
 
