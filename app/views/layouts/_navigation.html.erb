@@ -4,18 +4,16 @@
   </li>
   <% if !logged_in? %>
   <div class='nav_item'>
-    <%= link_to 'new user', new_user_path, class: 'btn btn-custom btn-small' %>
+    <%= link_to 'new user', new_user_path %>
   </div>
   <div class='nav_item'>
-    <%= link_to 'log-in', login_path, class: 'btn btn-custom btn-small' %>
+    <%= link_to 'log-in', login_path %>
   </div>
 
   <% end %>
 
   <%if logged_in? %>
-    <div class='nav_item'>
-    <%= link_to 'users', users_path, class: 'btn btn-custom btn-small' %>
-  </div>
+
 <div class = 'btn-group nav_item'>
   <%= link_to('', class: 'btn btn-small dropdown-toggle', 'data-toggle'=> 'dropdown') do %>
   <%= current_user.username %>
@@ -26,6 +24,12 @@
       <%= link_to user_path(current_user) do %>
       <i class='icon-user'></i>
       view profile
+      <% end %>
+    </li>
+    <li>
+      <%= link_to users_path do %>
+      <i class='icon-wrench'></i>
+      all users
       <% end %>
     </li>
     <li>
