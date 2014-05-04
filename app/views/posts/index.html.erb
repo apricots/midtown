@@ -95,7 +95,7 @@
 		<ul>
 			<% for user in current_user.friends %>
 				<li>
-					<a class="friend-container" href="#" data-username="<%= user.username %>">
+					<a class="friend-container" href="#" data-username="<%= user.username %>" data-address="<%= user.address %>">
 						<div class="friend">
 							<div><strong><%= user.username %></strong></div>
 							<% if(user.address != nil)  %>
@@ -107,6 +107,23 @@
 			<% end %>
 		</ul>
 	</div>
+
+	<div id="directions" 
+         data-dojo-type="dijit/layout/ContentPane" 
+         data-dojo-props="region:'bottom'" class="panel" 
+         style="height:250px;">
+
+      <b>Click the map to find routes for the
+      <select id="numLocations" name="numLocations" data-dojo-type="dijit/form/ComboBox" value="1" style="width:60px;">
+          <option selected="selected">1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+      </select> closest facilities to the input point.</b> 
+      <div id="directionsDiv"></div>
+
+    </div>
 </div>
 
 <div class="map-container">
@@ -156,39 +173,188 @@
 			urlUtils, Map, esriLang, Graphic, InfoTemplate, GraphicsLayer, SimpleRenderer, 
       		Point, FeatureSet, 
       		ClosestFacilityTask, ClosestFacilityParameters, 
-      		SimpleMarkerSymbol, SimpleLineSymbol) { 
+      		SimpleMarkerSymbol, SimpleLineSymbol) {
+
+		var incidentsGraphicsLayer, 
+			routeGraphicLayer, 
+			facilitiesGraphicsLayer,
+			closestFacilityTask;
+
+		//wtf does this even do? i don't even know
+      	parser.parse();
+
+  		//Create the map so it is pretty for the UI
 	    map = new Map("Map", {
 	      center: [-56.049, 38.485],
 	      zoom: 4,
 	      basemap: "streets"
 	    });
+		map.on("click", mapClickHandler);
 
+	    //Create the geo location button on the map
 		var geoLocate = new LocateButton({
         	map: map
       	}, "LocateButton");
       	geoLocate.startup();
 
+		urlUtils.addProxyRule({
+          urlPrefix: "route.arcgis.com",
+          proxyUrl: "http://adamkchew.maps.arcgis.com"
+        });
+        
+
+		params = new ClosestFacilityParameters();
+		params.impedenceAttribute= "Miles";      
+		params.defaultCutoff= 1000.0;      
+		params.returnIncidents=false;
+		params.returnRoutes=true;
+		params.returnDirections=true;
+		params.defaultTargetFacilityCount=10;
+      
+		map.on("load", function(evtObj) {
+			var map = evtObj.target;
+
+			//Origin
+			incidentsGraphicsLayer = new GraphicsLayer();
+	        var incidentPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
+	        var incidentsRenderer = new SimpleRenderer(incidentPointSymbol);
+	        incidentsGraphicsLayer.setRenderer(incidentsRenderer);
+	        map.addLayer(incidentsGraphicsLayer);
+
+        	//Route
+	        routeGraphicLayer = new GraphicsLayer();
+	        var routePolylineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 4.0);
+	        var routeRenderer = new SimpleRenderer(routePolylineSymbol);
+	        routeGraphicLayer.setRenderer(routeRenderer);
+	        map.addLayer(routeGraphicLayer);
+
+			//Targets
+			facilitiesGraphicsLayer = new GraphicsLayer();
+			var facilityPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
+	        var facilityRenderer = new SimpleRenderer(facilityPointSymbol);
+	        facilitiesGraphicsLayer.setRenderer(facilityRenderer);
+	        map.addLayer(facilitiesGraphicsLayer);
+
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625960,8549921,map.spatialReference)));
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626184,4549247,map.spatialReference)));
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13626477,4549415,map.spatialReference)));
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13625385,4549659,map.spatialReference))); 
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624374,4548254,map.spatialReference))); 
+	        facilitiesGraphicsLayer.add(new Graphic(new Point(-13624891,4548565,map.spatialReference))); 
+	   
+	        var facilities = new FeatureSet();
+	        facilities.features = facilitiesGraphicsLayer.graphics;
+	        
+	        params.facilities = facilities;
+	        params.outSpatialReference = map.spatialReference;
+       
+  		});
+      
+      	closestFacilityTask = new ClosestFacilityTask("http://route.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World");
+
+		//clear graphics	
+      	function clearGraphics() {
+	        dom.byId("directionsDiv").innerHTML= "";
+	        map.graphics.clear();
+	        routeGraphicLayer.clear();
+	        incidentsGraphicsLayer.clear();    
+		}
+
+
+
+      	function mapClickHandler(evt) {
+        	clearGraphics();
+
+        	var inPoint = new Point(evt.mapPoint.x, evt.mapPoint.y, map.spatialReference);
+        	var location = new Graphic(inPoint);
+
+        	incidentsGraphicsLayer.add(location);
+        
+        	var features = [];
+    		features.push(location);
+        	var incidents = new FeatureSet();
+        	incidents.features = features;
+        	params.incidents = incidents;
+        
+        	map.graphics.enableMouseEvents();
+       
+        	routeGraphicLayer.on("mouse-over", function(evt) {
+          	//clear existing directions and highlight symbol
+          		map.graphics.clear();
+          		dom.byId("directionsDiv").innerHTML= "Hover over the route to view directions";
+          
+          		var highlightSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0,255,255],0.25), 4.5);
+          		var highlightGraphic = new Graphic(evt.graphic.geometry,highlightSymbol);
+          
+          		map.graphics.add(highlightGraphic);
+          		dom.byId("directionsDiv").innerHTML = esriLang.substitute(evt.graphic.attributes,"${*}");
+        	});	
+
+        	//solve 
+        	closestFacilityTask.solve(params, function(solveResult) {
+          		var directions = solveResult.directions;
+          		array.forEach(solveResult.routes, function(route, index){
+            	//build an array of route info
+            	var attr = array.map(solveResult.directions[index].features, function(feature) {
+              		return feature.attributes.text;
+            	});
+            	var infoTemplate = new InfoTemplate("Attributes", "${*}");
+            
+            	route.setInfoTemplate(infoTemplate);
+            	route.setAttributes(attr);
+            
+            	routeGraphicLayer.add(route);
+            	dom.byId("directionsDiv").innerHTML = "Hover over the route to view directions";
+          	});
+          
+          	//display any messages
+          	if(solveResult.messages.length > 0){
+            	dom.byId("directionsDiv").innerHTML = "<b>Error:</b> " + solveResult.messages[0];
+          	}      
+      	});
+    }
+
+
+
+  		//Add Geocoder dynamically
 	    addGeocoder("pointA", "Your Address");
 	    addGeocoder("pointB", "Friends Address");
 
 		$("a.friend-container").each(function() {
 			$(this).unbind("click").click(function() {
 				var username = $(this).attr("data-username");
+				var address = $(this).attr("data-address");
 				searchContainer.append('<div id="point' + username + '"></div>');
-				addGeocoder("point" + username, username);
+				var geocoder = addGeocoder("point" + username, username, address);
 				return false;
 			});
 		});
 
-		function addGeocoder(id, detail) {
+		function addGeocoder(id, detail, address) {
+			var graphic;
+
 			var geocoder = new Geocoder({
 				autoComplete: true,
 				map: map,
 	  			arcgisGeocoder: {
 	    			placeholder: detail
-	  			}
+	  			},
+	  			value: address != null ? address : ""
 			}, dom.byId(id));
+
+			geocoder.on("select", function(e) {
+				var x = e.result.feature.geometry.x;
+				var y = e.result.feature.geometry.y;
+				graphic = new Graphic(new Point(x, y, map.spatialReference))
+				facilitiesGraphicsLayer.add(graphic);
+			});
+
+			geocoder.on("clear", function() {
+				facilitiesGraphicsLayer.remove(graphic);
+			});
+
 			geocoders.push(geocoder)
+			return geocoder;
 		}
 	});     
 
