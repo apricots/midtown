@@ -18,6 +18,10 @@
   margin-left: 135px
 }
 
+.navbar {
+  margin-bottom: 0;
+}
+
 .navbar .nav > li > a.brand {
   padding-left: 0px;
 }
@@ -61,7 +65,7 @@ div.comment_votes {
   }
 
   .search-container {
-    width: 30%;
+    width: 20%;
     height: 100%;
     float: left;
     padding: 0 20px;
@@ -71,7 +75,7 @@ div.comment_votes {
   } 
 
   .map-container {
-    width: 70%;
+    width: 80%;
     height: 100%;
     float: left;
   }
