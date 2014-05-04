@@ -1,11 +1,21 @@
-hi!
+<h2>ALL USERS</h2>
 
 <div>
   <% for user in @users %>
   <div>
   <%= user.username %>
-  <%= link_to 'Add Friend', friendships_path(:friend_id => user), :method => :post %>
+  <%= link_to '<i class="icon-plus"></i>'.html_safe, friendships_path(:friend_id => user), :method => :post %> 
+  <%= link_to "remove", friendships_path(:friend_id => user), :method => :delete %>
   <% end %>
 </div>
 
 </div>
+
+<hr>
+Friends
+
+<% for friend in current_user.friendships %>
+<div>
+  <%= friend.friend.username %>
+</div>
+<% end %>

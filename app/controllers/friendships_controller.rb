@@ -1,9 +1,12 @@
 class FriendshipsController < ApplicationController
   def create
     @friendship = current_user.friendships.build(:friend_id => params[:friend_id])
-    if @friendship.save
+    if @friendship.save && params[:_method] == "post"
       flash[:notice] = "Added friend."
-      redirect_to root_url
+      redirect_to :back
+    elsif @friendship.save && params[:_method] == "destroy"
+      flash[:error] = "Deleted Friend"
+      redirect_to :back
     else
       flash[:error] = "Unable to add friend."
       redirect_to root_url
