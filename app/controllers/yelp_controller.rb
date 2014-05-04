@@ -19,11 +19,10 @@ class YelpController < ApplicationController
 
     longitude = params[:longitude]
     latitude = params[:latitude]
-    latitude1 = latitude.split('.')[0] + '.' + latitude.split('.')[1]
 
 
 
-    path = '/v2/search?term=food&ll=' + latitude1 + ',' + longitude + '&limit=10'
+    path = '/v2/search?term=food&ll=' + latitude + ',' + longitude + '&limit=10'
 
 
     yelp_data = JSON(access_token.get(path).body)
