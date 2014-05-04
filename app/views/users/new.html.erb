@@ -7,15 +7,13 @@
         <%= f.label :username %>
         <%= f.text_field :username %>
       </div>  
-      <div class = 'control-group'>
-        <%= f.label :address %>
-        <%= f.text_field :address %>
-      </div>
-      <div>
-        <input id="user_longitude" name="user[longitude]" type="hidden">
-        <input id="user_latitude" name="user[latitude]" type="hidden">
-      </div>
 
+      <div id="address"></div>
+      <div>
+        <input id="user_address" name="user[address]" type="hidden" required>
+        <input id="user_longitude" name="user[longitude]" type="hidden" required>
+        <input id="user_latitude" name="user[latitude]" type="hidden" required>
+      </div>
 
       <%= f.submit class: 'btn btn-custom' %>
       <% end %>
@@ -62,6 +60,12 @@
       Point, FeatureSet,
       SimpleMarkerSymbol, SimpleLineSymbol) {
 
+      var incidentsGraphicsLayer; 
+      var geocoder;
+      var selectedPoint;
+      var latitude;
+      var longitude;
+
       //Create the map so it is pretty for the UI
       map = new Map("Map", {
         center: [-56.049, 38.485],
@@ -79,23 +83,84 @@
 
       
       map.on("load", function(evtObj) {
-        
+          var map = evtObj.target;
+
+          //Origin
+          incidentsGraphicsLayer = new GraphicsLayer();
+          var incidentPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([89,95,35]), 2), new Color([130,159,83,0.40]));
+          var incidentsRenderer = new SimpleRenderer(incidentPointSymbol);
+          incidentsGraphicsLayer.setRenderer(incidentsRenderer);
+          map.addLayer(incidentsGraphicsLayer);
       });
-      
+
+      geocoder = new Geocoder({
+        autoComplete: true,
+        map: map,
+          arcgisGeocoder: {
+            name: "user[address]",
+            placeholder: "Your Address"
+          },
+      }, dom.byId("address"));
+
+      geocoder.on("select", function(e) {  
+        if(selectedPoint != null) {
+          incidentsGraphicsLayer.remove(selectedPoint);
+          selectedPoint = null;
+        }
+
+        latitude = e.result.feature.geometry.x / 100000;
+        longitude = e.result.feature.geometry.y / 100000;
+        console.log(latitude, longitude);
+
+        selectedPoint = new Graphic(e.result.feature.geometry)
+
+        console.log(e);
+        incidentsGraphicsLayer.add(selectedPoint);
+        updateLongitudeAndLatitude();
+      });
+
+      geocoder.on("clear", function() {
+        latitude = null;
+        longtitude = null;
+        updateLongitudeAndLatitude();
+      });
+
       //clear graphics  
       function clearGraphics() {
         map.graphics.clear();
+        incidentsGraphicsLayer.clear();
       }
-
-
 
       function mapClickHandler(e) {
-          clearGraphics
-
-          var clickedPoint = new Point(e.mapPoint.x, e.mapPoint.y, map.spatialReference);
+          clearGraphics();
+          latitude = e.mapPoint.x;
+          longitude = e.mapPoint.y;
+          var clickedPoint = new Point(latitude, longitude, map.spatialReference);
           var location = new Graphic(clickedPoint);
+
+          updateLongitudeAndLatitude();
       }
-  });     
+
+      function updateLongitudeAndLatitude() {
+        $("#user_longitude").val(longitude);
+        $("#user_latitude").val(latitude);
+        $("#user_address").val(geocoder.value);
+      }
+  });
+
+  $("#new_user").submit(function() {
+      var username = $("#user_username").val();
+      var longitude = $("#user_longitude").val();
+      var latitude = $("#user_latitude").val();
+      var address = $("#user_address").val();
+
+      if(username != null && longitude != null && latitude != null && address != null) {
+        return true;
+      }else {
+        alert("Please enter all data");
+        return false;
+      }
+  });
 
 </script>
 

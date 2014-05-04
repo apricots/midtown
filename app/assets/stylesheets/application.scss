@@ -114,7 +114,7 @@ div.comment_votes {
     margin-bottom: 5px;
   }
 
-  .friends-container .friend-container.active{
+  .friends-container .friend-container.active {
     background-color: yellow;
   }
 
@@ -141,6 +141,16 @@ div.comment_votes {
     left: 20px;
     z-index: 50;
   } 
+
+  form input[type="text"] {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 16px 6px;
+    margin: 0;
+
+  }
 
   .add-new-friends-container {
     padding: 10px;

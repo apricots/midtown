@@ -39,7 +39,7 @@
 </div>
 
 <script>
-	var API_TOKEN = "g-w4YQfNO1dWRhUttjbtey-UEyVWf82XBS6H2LbA4MXrQ5EQAaGdAF6Nig84hr0dffVnDEwgcE-obRRtU-DwioHYk1atWYaAmoINc4VKdyVy6rImdrTBlcLoTwsZqEzpaAW6OH1kxwRDyWryG3LRbg.."
+	var API_TOKEN = "ToNThCY7s-g_91Oa2PS051ykOI2Aip43QJDEqLK9gWnE3vU3Njat7UhIZfYPSGcqIW6J8wGxeDkgbMBavXlXR5If7Uoo4wcN3-peqmZltqNP2tUJSePR4eNFAVrOSLc11OLVZepaIwuzPK0U2tBhOQ.."
 
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
@@ -195,8 +195,8 @@
 				if(graphic == null) {
 					var username = $(this).attr("data-username");
 					var address = $(this).attr("data-address");
-					var x = $(this).attr("data-longitude");
-					var y = $(this).attr("data-latitude");
+					var x = parseInt($(this).attr("data-latitude"));
+					var y = parseInt($(this).attr("data-longitude"));
 					graphic = new Graphic(new Point(x, y, map.spatialReference))	
 					addressGraphicsLayer.add(graphic);
 					$(this).addClass("active");
