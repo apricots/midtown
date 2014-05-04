@@ -1,45 +1,5 @@
 <style>
-	.#yelpContainer {
-		overflow: scroll;
-		height: 250px;
-	}
 
-	.yelp-results {
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		margin-bottom: 10px;
-	}
-
-	.image-container {
-		width: 10%;
-		float: left;
-	}
-
-	.metadata-container {
-		width: 90%;
-		float: left;
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		padding: 0 10px;
-	}
-
-	.yelp-results a {
-		display: block;
-		padding: 5px;
-	}
-
-	.yelp-results a:hover {
-		background: yellow;
-	}
-
-	#logo {
-		position: absolute;
-		left: 10px;
-		bottom: 10px;
-		z-index: 50;
-	}
 
 </style>
 
@@ -47,7 +7,6 @@
 
 
 <div class="search-container">
-	<br>
 	<h3>search</h3>
 	<div class="search-collection">
 		<div class="simpleGeocoder" id="pointA"></div>
@@ -381,7 +340,7 @@
 					var business = data.businesses[i];
 					var html = '' +
 					'<div class="yelp-results">' +
-						'<a href="' + business.url + '">' +
+						'<a href="' + business.url + '" target="_blank">' +
 							'<div class="image-container">' + 
 								'<img width="100%" height="100%" src="' + business.image_url + '"/>' +
 							'</div>' +
