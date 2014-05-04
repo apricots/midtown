@@ -41,7 +41,7 @@
 </div>
 
 <script>
-	var API_TOKEN = "sKaa7atR-IiNVl8cE-c__IB85iPmNh98Qjm0ZQVAvp25apfho0O_BJBCQx41EsnEw1tC5f0aWphgc7ZvpLMs52_9ofAZbK2u6rW7XnhGPW318AfKX3U_XNpRoe97KSWdTojn6iMFWeSa3BUYBFhgrw.."
+	var API_TOKEN = "Pbr1iFWs44w4e4fz3Ctid1dPff61wxYVEYY0Ix6tctBHiUfOc3mDVPi9R-R8OW7qXr4vS_ysaKw452cXdzYi4gbmrrmUbLE7uir5CZ_W5wNe68WMNcqvKiUNwBzPIh9YB1b6AbjI_f-UbVSwGnGk4A.."
 
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
@@ -111,6 +111,7 @@
         	map: map
       	}, "LocateButton");
       	geoLocate.startup();
+      	console.log(geoLocate);
 
 		params = new ClosestFacilityParameters();
 		params.impedenceAttribute= "Miles";      
@@ -147,7 +148,7 @@
 
 			//Midpoint
 			midpointGraphicsLayer = new GraphicsLayer();
-	        var midpointPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 40, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([33,95,35]), 2), new Color([33,200,35, ,0.60]));
+	        var midpointPointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 20, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([33,95,35]), 2), new Color([33,200,35, ,0.60]));
 			var midpointRenderer = new SimpleRenderer(midpointPointSymbol);
 			midpointGraphicsLayer.setRenderer(midpointRenderer);
 			map.addLayer(midpointGraphicsLayer);
@@ -306,10 +307,10 @@
 	            	});
 
 	            	var infoTemplate = new InfoTemplate("Attributes", "${*}");
-	            
 	            	route.setInfoTemplate(infoTemplate);
 	            	route.setAttributes(attr);
-	            
+	            	route.totalTime = solveResult.directions[index].totalTime;
+	            	
 	            	routeGraphicLayer.add(route);
 	            	directionContainer.innerHTML = "Hover over the route to view directions";
 	          	});
