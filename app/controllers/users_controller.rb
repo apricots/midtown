@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    render :json => User.all
+    @users = User.all
   end
 
   def create
