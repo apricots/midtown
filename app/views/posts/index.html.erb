@@ -1,11 +1,18 @@
 <div class="search-container">
+  
+
 	<div class="search-collection">
 		<div id="pointA"></div>
 		<div id="pointB"></div>	
 		<div id="pointC"></div>
 		<div id="pointD"></div>	
 		<%# This is auto generated %>
+    	<% @yelp_data.each_with_index do |restaurant,index| %>
+      		<p><%=@yelp_data['businesses'][index]['name']%></p>
+      		<p><%=@yelp_data['businesses'][index]['location']['display_address']%><p/>
+    	<% end %>
 	</div>
+
 
 	<div class="friends-container">
 		<h3>friends</h3>

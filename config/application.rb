@@ -2,9 +2,13 @@ require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
 
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(:default, Rails.env)
+
+require 'factual'
+factual = Factual.new("dVPg52iWyAQmwVodNXAkaxxtb6Lnma6aksmaXCFa", "1GnACsViXw7ubpSR7gYoEzsoFLnPpixwXAXdh7jC")
 
 module PostitTemplate
   class Application < Rails::Application

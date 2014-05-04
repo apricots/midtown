@@ -1,0 +1,12 @@
+<% index = 0 %>
+
+<!--     <%longitude = params[:longitude]%>
+   <%latitude = params[:latitude]%>
+    <%latitude1 = latitude.split('.')[0] + '.' + latitude.split('.')[1]%> -->
+<%= @yelp_data.length %>
+<% @yelp_data.each do |restaurant| %>
+<p><%=@yelp_data['businesses'][index]['name']%></p>
+<p><%=@yelp_data['businesses'][index]['location']['display_address']%><p/>
+<% index = index + 1 %>
+<%= index %>
+<% end %>
