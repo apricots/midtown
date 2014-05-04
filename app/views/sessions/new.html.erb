@@ -1,0 +1,13 @@
+
+<div class = 'search-container'>
+  <h3>log in</h3>
+<div class = 'add-new-friends'>
+  <%= form_tag '/login' do %>
+    <div class= 'control-group'>
+      <%= label_tag :username %>
+      <%= text_field_tag :username %>
+    </div>
+    <%= submit_tag 'Submit'  %>
+<% end %>
+</div>
+</div>
