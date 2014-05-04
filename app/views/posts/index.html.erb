@@ -1,40 +1,5 @@
 <style>
-	.yelp-results {
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		margin-bottom: 10px;
-	}
 
-	.image-container {
-		width: 10%;
-		float: left;
-	}
-
-	.metadata-container {
-		width: 90%;
-		float: left;
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		padding: 0 10px;
-	}
-
-	.yelp-results a {
-		display: block;
-		padding: 5px;
-	}
-
-	.yelp-results a:hover {
-		background: yellow;
-	}
-
-	#logo {
-		position: absolute;
-		left: 10px;
-		bottom: 10px;
-		z-index: 50;
-	}
 
 </style>
 
@@ -42,7 +7,6 @@
 
 
 <div class="search-container">
-	<br>
 	<h3>search</h3>
 	<div class="search-collection">
 		<div class="simpleGeocoder" id="pointA"></div>
@@ -69,7 +33,10 @@
 		</div>
 	<% end %>
 
+	<h3>yelp</h3>
 	<div id="yelpContainer"></div>
+
+	<h3>direction</h3>
 	<div id="directionContainer"></div>
 
 </div>
@@ -82,7 +49,7 @@
 </div>
 
 <script>
-	var API_TOKEN = "ToNThCY7s-g_91Oa2PS051ykOI2Aip43QJDEqLK9gWnE3vU3Njat7UhIZfYPSGcqIW6J8wGxeDkgbMBavXlXR5If7Uoo4wcN3-peqmZltqNP2tUJSePR4eNFAVrOSLc11OLVZepaIwuzPK0U2tBhOQ.."
+	var API_TOKEN = "AXziRO-83U1tU2P7j7glOnF5br4BK-NQMIQ4psyh44TR9ksJAkvqC1iyesMoOHuOF9mucCYQGXiW5MicZwL-Kq8lwNCWhpfBEdyp2N074qQuq329E98XLAqBZxckCf1EYAecR5yHsNzQkPDHXzgAVg.."
 
 	var geocoders = [];
 	var searchContainer = $(".search-collection");
@@ -340,7 +307,7 @@
           		var directions = solveResult.directions;
 
           		array.forEach(solveResult.routes, function(route, index) {
-
+          			console.log(solveResult.directions[index].totalTime);
 
             		//build an array of route info
 	            	var attr = array.map(solveResult.directions[index].features, function(feature) {
@@ -355,6 +322,8 @@
 	            	routeGraphicLayer.add(route);
 	            	directionContainer.innerHTML = "Hover over the route to view directions";
 	          	});
+
+
           	}, function(error) {
 				clearGraphics();
           		directionContainer.innerHTML = error.message;
@@ -371,7 +340,7 @@
 					var business = data.businesses[i];
 					var html = '' +
 					'<div class="yelp-results">' +
-						'<a href="' + business.url + '">' +
+						'<a href="' + business.url + '" target="_blank">' +
 							'<div class="image-container">' + 
 								'<img width="100%" height="100%" src="' + business.image_url + '"/>' +
 							'</div>' +
