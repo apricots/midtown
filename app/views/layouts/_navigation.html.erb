@@ -3,12 +3,12 @@
     <%= link_to "midtown", root_path, :class => 'brand' %>
   </li>
   <% if !logged_in? %>
-  <div class='nav_item'>
+  <li class='nav_item'>
     <%= link_to 'new user', new_user_path %>
-  </div>
-  <div class='nav_item'>
+  </li>
+  <li class='nav_item'>
     <%= link_to 'log-in', login_path %>
-  </div>
+  </li>
 
   <% end %>
 
