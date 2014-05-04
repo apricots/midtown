@@ -1,7 +1,9 @@
 <div class='add-new-friends-container'>
+    <h3>my profile</h3>
   <div class="add-new-friends">
-  <h4>My Profile</h4>
+
 <p>Username: <%= @user.username %></p>
+<p>Default Address: <%= @user.address %></p>
 <h4>Friends</h4> 
 <ul>
   <% for friendship in @user.friendships %>
@@ -22,3 +24,86 @@
 </ul>
 </div>
 </div>
+
+<div class="map-container">
+    <div id="Map">
+      <div id="LocateButton"></div>
+  </div>
+</div>
+
+
+<script>
+  var API_TOKEN = "AZJFyNLR11jjhrLfvYAkQ8PIVBWdud2Oz50aHe2gGpmM3Bl8JXxe6KTeSjqjtapLtwzyBn4yJ45QDhizrRcTEMNbB0Ob4Z7TcxruqOGuHJLyVh-Bzqgldyisnxy-NkAilunkzRCVbUfhgqhFKqamhg.."
+
+  var geocoders = [];
+  var searchContainer = $(".search-collection");
+
+  var map;
+
+    require([
+      "dojo/dom", 
+      "dojo/_base/array",
+      "esri/Color",
+      "dojo/parser",
+      "dijit/registry",
+
+      "esri/dijit/Geocoder",
+      "esri/dijit/LocateButton",
+
+      "esri/urlUtils",
+      "esri/map",
+      "esri/lang",
+      "esri/graphic",
+      "esri/InfoTemplate",
+      "esri/layers/GraphicsLayer",
+      "esri/renderers/SimpleRenderer",
+
+      "esri/geometry/Point",
+      "esri/tasks/FeatureSet",
+
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/symbols/SimpleLineSymbol",], function(
+      dom, array, Color, parser, registry,
+      Geocoder, LocateButton,
+      urlUtils, Map, esriLang, Graphic, InfoTemplate, GraphicsLayer, SimpleRenderer, 
+      Point, FeatureSet,
+      SimpleMarkerSymbol, SimpleLineSymbol) {
+
+      //Create the map so it is pretty for the UI
+      map = new Map("Map", {
+        center: [-56.049, 38.485],
+        zoom: 4,
+        basemap: "streets"
+      });
+
+      map.on("click", mapClickHandler);
+
+      //Create the geo location button on the map
+      var geoLocate = new LocateButton({
+        map: map
+      }, "LocateButton");
+      geoLocate.startup();
+
+      
+      map.on("load", function(evtObj) {
+        
+      });
+      
+      //clear graphics  
+        function clearGraphics() {
+          map.graphics.clear();
+    }
+
+
+
+      function mapClickHandler(evt) {
+          clearGraphics();
+
+          var inPoint = new Point(evt.mapPoint.x, evt.mapPoint.y, map.spatialReference);
+          var location = new Graphic(inPoint);
+
+          map.graphics.enableMouseEvents();
+    }
+  });     
+
+</script>
